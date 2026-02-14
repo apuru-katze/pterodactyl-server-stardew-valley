@@ -26,6 +26,20 @@ fi
 chown -R root:root /mnt
 export HOME=/mnt/server
 
+## Install dependencies (must be before SteamCMD - needs lib32gcc-s1 for 32-bit steamcmd)
+apt-get update -y
+apt-get install -y --no-install-recommends \
+  ca-certificates \
+  curl \
+  wget \
+  unzip \
+  lib32gcc-s1 \
+  mono-runtime \
+  xvfb \
+  cpulimit
+apt-get clean
+rm -rf /var/lib/apt/lists/*
+
 ## download and install steamcmd
 curl -sSL -o steamcmd.tar.gz https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
 tar -xzvf steamcmd.tar.gz -C /mnt/server/steamcmd
@@ -53,20 +67,6 @@ cp -v /mnt/server/steamcmd/linux32/steamclient.so /mnt/server/.steam/sdk32/steam
 ## set up 64 bit libraries
 mkdir -p /mnt/server/.steam/sdk64
 cp -v /mnt/server/steamcmd/linux64/steamclient.so /mnt/server/.steam/sdk64/steamclient.so
-
-## Install dependencies
-# Server Files: /mnt/server
-apt-get update -y
-apt-get install -y --no-install-recommends \
-  ca-certificates \
-  curl \
-  wget \
-  unzip \
-  lib32gcc-s1 \
-  mono-runtime \
-  xvfb
-apt-get clean
-rm -rf /var/lib/apt/lists/*
 
 ## Game specific setup.
 cd /mnt/server/
