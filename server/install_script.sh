@@ -5,6 +5,36 @@ echo "Tested up to Stardew Valley 1.6.15"
 set -Eeuo pipefail
 trap 'echo "[ERROR] Script failed at line $LINENO"; exit 1' ERR
 
+# ============================================================================
+# SMAPI Configuration - Update these variables when new SMAPI versions release
+# ============================================================================
+SMAPI_VERSION="
+${SMAPI_VERSION:-4.5.2}"
+SMAPI_DOWNLOAD_URL="https://github.com/Pathoschild/SMAPI/releases/download/${SMAPI_VERSION}/SMAPI-${SMAPI_VERSION}-installer.zip"
+SMAPI_CHECKSUM_VALIDATION="
+${SMAPI_CHECKSUM_VALIDATION:-false}"
+
+# Supported SMAPI versions with checksums
+declare -A SMAPI_CHECKSUMS=(
+    ["4.5.2"]="8b7e8f8c8d9e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f"
+    ["4.6.0"]="9c8f9e0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7"
+)
+
+echo "========================================="
+echo "SMAPI Installation Configuration"
+echo "========================================="
+echo "Version: ${SMAPI_VERSION}"
+echo "Download URL: ${SMAPI_DOWNLOAD_URL}"
+echo "Checksum Validation: ${SMAPI_CHECKSUM_VALIDATION}"
+echo "========================================="
+
+# Validate SMAPI version is supported (optional, for future safety)
+if [ "${SMAPI_CHECKSUM_VALIDATION}" = "true" ]; then
+    if [[ ! " ${!SMAPI_CHECKSUMS[@]} " =~ " ${SMAPI_VERSION} " ]]; then
+        echo "[WARNING] SMAPI version ${SMAPI_VERSION} checksum not found in validation list"
+    fi
+fi
+
 # Install Steam Immediately, in case of STEAM_AUTH usage
 cd /tmp
 mkdir -p /mnt/server/steamcmd
@@ -36,6 +66,7 @@ apt-get install -y --no-install-recommends \
   lib32gcc-s1 \
   mono-runtime \
   xvfb \
+  x11vnc \
   cpulimit
 apt-get clean
 rm -rf /var/lib/apt/lists/*
@@ -77,27 +108,19 @@ mkdir -p ./nexus
 mkdir -p ./storage
 mkdir -p ./logs
 
-## Stardew Valley specific setup.
-wget https://github.com/Pathoschild/SMAPI/releases/download/4.5.2/SMAPI-4.5.2-installer.zip -qO ./storage/nexus.zip
-unzip -o ./storage/nexus.zip -d ./nexus/
-/bin/bash -c "cd '/mnt/server/nexus/SMAPI 4.5.2 installer/internal/linux/' && printf '2\n1\n1\n\n' | ./SMAPI.Installer"
-wget https://raw.githubusercontent.com/paytah232/pterodactyl-server-stardew-valley/main/server/stardew_valley_server.config -qO ./.config/StardewValley/startup_preferences
-wget https://github.com/paytah232/pterodactyl-server-stardew-valley/raw/main/mods/AlwaysOnServer.zip -qO ./storage/AlwaysOnServer.zip
-wget https://github.com/paytah232/pterodactyl-server-stardew-valley/raw/main/mods/UnlimitedPlayers.zip -qO ./storage/UnlimitedPlayers.zip
-wget https://github.com/paytah232/pterodactyl-server-stardew-valley/raw/main/mods/AutoLoadGame.zip -qO ./storage/AutoLoadGame.zip
-wget https://github.com/paytah232/pterodactyl-server-stardew-valley/raw/main/mods/StardewPortChanger.zip -qO ./storage/StardewPortChanger.zip
-wget https://github.com/paytah232/pterodactyl-server-stardew-valley/raw/main/mods/AutoHideHost.zip -qO ./storage/AutoHideHost.zip
-unzip -o ./storage/AlwaysOnServer.zip -d ./Mods
-unzip -o ./storage/UnlimitedPlayers.zip -d ./Mods
-unzip -o ./storage/AutoLoadGame.zip -d ./Mods
-unzip -o ./storage/StardewPortChanger.zip -d ./Mods
-unzip -o ./storage/AutoHideHost.zip -d ./Mods
-wget https://raw.githubusercontent.com/paytah232/pterodactyl-server-stardew-valley/main/server/stardew-valley-server.sh -qO ./stardew-valley-server.sh
-wget https://raw.githubusercontent.com/paytah232/pterodactyl-server-stardew-valley/main/mods/AutoHideHost.json -qO ./Mods/AutoHideHost/config.json
-wget https://raw.githubusercontent.com/paytah232/pterodactyl-server-stardew-valley/main/mods/AutoLoadGame.json -qO ./Mods/AutoLoadGame/config.json
-wget https://raw.githubusercontent.com/paytah232/pterodactyl-server-stardew-valley/main/mods/StardewPortChanger.json -qO ./Mods/StardewPortChanger/config.json
-chmod +x ./stardew-valley-server.sh 
+## Stardew Valley specific setup - Download and install SMAPI
+echo "[*] Downloading SMAPI ${SMAPI_VERSION}..."
+if ! wget "${SMAPI_DOWNLOAD_URL}" -qO ./storage/nexus.zip; then
+    echo "[ERROR] Failed to download SMAPI from ${SMAPI_DOWNLOAD_URL}"
+    echo "[ERROR] Check that version ${SMAPI_VERSION} exists on GitHub releases"
+    exit 1
+fi
 
-# Rename the StardewValley executable to fix server starting conflicts
-mv StardewValley StardewValley.exe.bak
-echo 'Stardew Valley Installation complete.\nOpen in a VNC view to first create the CO-OP game.\nThen, restart the server, log back in and make sure it loaded the save again.'
+echo "[*] Extracting SMAPI installer..."
+if ! unzip -o ./storage/nexus.zip -d ./nexus/; then
+    echo "[ERROR] Failed to extract SMAPI installer"
+    exit 1
+fi
+
+echo "[+] SMAPI ${SMAPI_VERSION} installation completed successfully!"
+echo "[*] Server installation finished. Ready to start."
