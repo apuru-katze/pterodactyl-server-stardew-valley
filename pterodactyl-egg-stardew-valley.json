@@ -117,6 +117,26 @@
             "user_editable": true,
             "rules": "required|integer|min:1|max:30",
             "field_type": "text"
+        },
+        {
+            "name": "SMAPI Version",
+            "description": "SMAPI version to download (e.g., 4.5.2). Check https://github.com/Pathoschild/SMAPI/releases for available versions",
+            "env_variable": "SMAPI_VERSION",
+            "default_value": "4.5.2",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:10",
+            "field_type": "text"
+        },
+        {
+            "name": "SMAPI Checksum Validation",
+            "description": "Enable checksum validation for SMAPI downloads (true/false)",
+            "env_variable": "SMAPI_CHECKSUM_VALIDATION",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|in:true,false",
+            "field_type": "text"
         }
     ]
 }
