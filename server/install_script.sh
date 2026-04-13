@@ -92,11 +92,13 @@ unzip -o ./storage/UnlimitedPlayers.zip -d ./Mods
 unzip -o ./storage/AutoLoadGame.zip -d ./Mods
 unzip -o ./storage/StardewPortChanger.zip -d ./Mods
 unzip -o ./storage/AutoHideHost.zip -d ./Mods
-wget https://raw.githubusercontent.com/paytah232/pterodactyl-server-stardew-valley/main/server/stardew-valley-server.sh -qO ./stardew-valley-server.sh
 wget https://raw.githubusercontent.com/paytah232/pterodactyl-server-stardew-valley/main/mods/AutoHideHost.json -qO ./Mods/AutoHideHost/config.json
 wget https://raw.githubusercontent.com/paytah232/pterodactyl-server-stardew-valley/main/mods/AutoLoadGame.json -qO ./Mods/AutoLoadGame/config.json
 wget https://raw.githubusercontent.com/paytah232/pterodactyl-server-stardew-valley/main/mods/StardewPortChanger.json -qO ./Mods/StardewPortChanger/config.json
-chmod +x ./stardew-valley-server.sh 
+
+# download stardew-valley-server.sh
+wget https://raw.githubusercontent.com/apuru-katze/pterodactyl-server-stardew-valley/blob/main/server/stardew-valley-server.sh -qO ./stardew-valley-server.sh
+chmod +x ./stardew-valley-server.sh
 
 # Rename the StardewValley executable to fix server starting conflicts
 mv StardewValley StardewValley.exe.bak
