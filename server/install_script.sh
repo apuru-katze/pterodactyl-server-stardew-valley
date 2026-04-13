@@ -5,6 +5,9 @@ echo "Tested up to Stardew Valley 1.6.15"
 set -Eeuo pipefail
 trap 'echo "[ERROR] Script failed at line $LINENO"; exit 1' ERR
 
+# Set Stardew Valley App ID
+SRCDS_APPID=${SRCDS_APPID:-413150}  # Gunakan env var, atau default ke 413150
+
 # Install Steam Immediately, in case of STEAM_AUTH usage
 cd /tmp
 mkdir -p /mnt/server/steamcmd
